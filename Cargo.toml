@@ -1,0 +1,23 @@
+[package]
+name = "pdf-merger-rs"
+version = "0.1.0"
+edition = "2021"
+authors = ["Stepanov Denis <stepanov.d.m@yandex.ru>"]
+description = "This is app for merge PDF files."
+license = "Apache-2.0"
+repository = "https://github.com/stepanov-denis/pdf-merger-rs/"
+keywords = ["merge", "pdf"]
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+eframe = "0.25.0"
+env_logger = { version = "0.10", default-features = false, features = [
+    "auto-color",
+    "humantime",
+] }
+log = "0.4.20"
+rfd = "0.13"
+lopdf = "0.32.0"
+qpdf = "0.1.7"
