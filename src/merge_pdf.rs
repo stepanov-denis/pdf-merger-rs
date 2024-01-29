@@ -1,12 +1,8 @@
-use lopdf::dictionary;
-use lopdf;
-use qpdf::*;
-use::std::path::PathBuf;
+
 
 use std::collections::BTreeMap;
-
-use lopdf::content::{Content, Operation};
-use lopdf::{Document, Object, ObjectId, Stream, Bookmark};
+use::std::path::PathBuf;
+use lopdf::{Document, Object, ObjectId, Bookmark};
 
 
 pub fn merge(documents: Vec<Document>, path: PathBuf) -> std::io::Result<()> {
@@ -26,21 +22,50 @@ pub fn merge(documents: Vec<Document>, path: PathBuf) -> std::io::Result<()> {
 
         documents_pages.extend(
             doc
-                    .get_pages()
-                    .into_iter()
-                    .map(|(_, object_id)| {
-                        if !first {
-                            let bookmark = Bookmark::new(String::from(format!("Page_{}", pagenum)), [0.0, 0.0, 1.0], 0, object_id);
-                            document.add_bookmark(bookmark, None);
-                            first = true;
-                            pagenum += 1;
-                        }
+                    
+                    .get_pages().into_values().map(|object_id| {
+                            if !first {
+                                let bookmark = Bookmark::new(String::from(format!("Page_{}", pagenum)), [0.0, 0.0, 1.0], 0, object_id);
+                                document.add_bookmark(bookmark, None);
+                                first = true;
+                                pagenum += 1;
+                            }
+    
+                            (
+                                object_id,
+                                doc.get_object(object_id).unwrap().to_owned(),
+                            )
+                        })
 
-                        (
-                            object_id,
-                            doc.get_object(object_id).unwrap().to_owned(),
-                        )
-                    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    // .get_pages()
+                    // .into_iter()
+                    // .map(|(_, object_id)| {
+                    //     if !first {
+                    //         let bookmark = Bookmark::new(String::from(format!("Page_{}", pagenum)), [0.0, 0.0, 1.0], 0, object_id);
+                    //         document.add_bookmark(bookmark, None);
+                    //         first = true;
+                    //         pagenum += 1;
+                    //     }
+
+                    //     (
+                    //         object_id,
+                    //         doc.get_object(object_id).unwrap().to_owned(),
+                    //     )
+                    // })
                     .collect::<BTreeMap<ObjectId, Object>>(),
         );
         documents_objects.extend(doc.objects);

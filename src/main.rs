@@ -1,17 +1,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 
-use eframe::egui::{self, ScrollArea, Ui};
-use eframe::glow::MAX_VERTEX_SHADER_STORAGE_BLOCKS;
-use std::fmt::write;
-use std::path::PathBuf;
-use log::{debug, error, log_enabled, info, Level};
-use std::default::Default;
-use std::fmt::Write as _;
-use std::fs::File;
-use std::io::{Write, BufReader, BufRead, Error};
-use qpdf::*;
-use qpdf::QPdf;
+use eframe::egui::{self, Ui};
+use log::error;
 use lopdf::{self, Document};
+use std::default::Default;
+use std::path::PathBuf;
+use qpdf::QPdf;
 mod merge_pdf;
 
 
@@ -50,7 +44,6 @@ impl Default for PdfValid {
 
 #[derive(Default)]
 struct MyApp {
-    dropped_files: Vec<egui::DroppedFile>,
     picked_path: Vec<PathBuf>,
     documents: Vec<Document>,
     pdf_valid: PdfValid,
@@ -129,7 +122,7 @@ fn load_document(path: &PathBuf, documents: &mut Vec<Document>, counter: &mut i3
         }
         Err(err) => {
             error!("{}", err);
-            *counter +1;
+            *counter += 1;
         }
     }
 }
