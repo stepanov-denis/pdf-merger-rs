@@ -1,9 +1,6 @@
-
-
+use ::std::path::PathBuf;
+use lopdf::{Bookmark, Document, Object, ObjectId};
 use std::collections::BTreeMap;
-use::std::path::PathBuf;
-use lopdf::{Document, Object, ObjectId, Bookmark};
-
 
 pub fn merge(documents: Vec<Document>, path: PathBuf) -> std::io::Result<()> {
     // Define a starting max_id (will be used as start index for object_ids)
@@ -21,52 +18,24 @@ pub fn merge(documents: Vec<Document>, path: PathBuf) -> std::io::Result<()> {
         max_id = doc.max_id + 1;
 
         documents_pages.extend(
-            doc
-                    
-                    .get_pages().into_values().map(|object_id| {
-                            if !first {
-                                let bookmark = Bookmark::new(String::from(format!("Page_{}", pagenum)), [0.0, 0.0, 1.0], 0, object_id);
-                                document.add_bookmark(bookmark, None);
-                                first = true;
-                                pagenum += 1;
-                            }
-    
-                            (
-                                object_id,
-                                doc.get_object(object_id).unwrap().to_owned(),
-                            )
-                        })
+            doc.get_pages()
+                .into_values()
+                .map(|object_id| {
+                    if !first {
+                        let bookmark = Bookmark::new(
+                            format!("Page_{}", pagenum),
+                            [0.0, 0.0, 1.0],
+                            0,
+                            object_id,
+                        );
+                        document.add_bookmark(bookmark, None);
+                        first = true;
+                        pagenum += 1;
+                    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    // .get_pages()
-                    // .into_iter()
-                    // .map(|(_, object_id)| {
-                    //     if !first {
-                    //         let bookmark = Bookmark::new(String::from(format!("Page_{}", pagenum)), [0.0, 0.0, 1.0], 0, object_id);
-                    //         document.add_bookmark(bookmark, None);
-                    //         first = true;
-                    //         pagenum += 1;
-                    //     }
-
-                    //     (
-                    //         object_id,
-                    //         doc.get_object(object_id).unwrap().to_owned(),
-                    //     )
-                    // })
-                    .collect::<BTreeMap<ObjectId, Object>>(),
+                    (object_id, doc.get_object(object_id).unwrap().to_owned())
+                })
+                .collect::<BTreeMap<ObjectId, Object>>(),
         );
         documents_objects.extend(doc.objects);
     }
@@ -135,8 +104,8 @@ pub fn merge(documents: Vec<Document>, path: PathBuf) -> std::io::Result<()> {
             dictionary.set("Parent", pages_object.as_ref().unwrap().0);
 
             document
-                    .objects
-                    .insert(*object_id, Object::Dictionary(dictionary));
+                .objects
+                .insert(*object_id, Object::Dictionary(dictionary));
         }
     }
 
@@ -161,14 +130,14 @@ pub fn merge(documents: Vec<Document>, path: PathBuf) -> std::io::Result<()> {
         dictionary.set(
             "Kids",
             documents_pages
-                    .into_iter()
-                    .map(|(object_id, _)| Object::Reference(object_id))
-                    .collect::<Vec<_>>(),
+                .into_keys()
+                .map(Object::Reference)
+                .collect::<Vec<_>>(),
         );
 
         document
-                .objects
-                .insert(pages_object.0, Object::Dictionary(dictionary));
+            .objects
+            .insert(pages_object.0, Object::Dictionary(dictionary));
     }
 
     // Build a new "Catalog" with updated fields
@@ -178,8 +147,8 @@ pub fn merge(documents: Vec<Document>, path: PathBuf) -> std::io::Result<()> {
         dictionary.remove(b"Outlines"); // Outlines not supported in merged PDFs
 
         document
-                .objects
-                .insert(catalog_object.0, Object::Dictionary(dictionary));
+            .objects
+            .insert(catalog_object.0, Object::Dictionary(dictionary));
     }
 
     document.trailer.set("Root", catalog_object.0);
@@ -190,15 +159,13 @@ pub fn merge(documents: Vec<Document>, path: PathBuf) -> std::io::Result<()> {
     // Reorder all new Document objects
     document.renumber_objects();
 
-     //Set any Bookmarks to the First child if they are not set to a page
+    //Set any Bookmarks to the First child if they are not set to a page
     document.adjust_zero_pages();
 
     //Set all bookmarks to the PDF Object tree then set the Outlines to the Bookmark content map.
     if let Some(n) = document.build_outline() {
-        if let Ok(x) = document.get_object_mut(catalog_object.0) {
-            if let Object::Dictionary(ref mut dict) = x {
-                dict.set("Outlines", Object::Reference(n));
-            }
+        if let Ok(Object::Dictionary(ref mut dict)) = document.get_object_mut(catalog_object.0) {
+            dict.set("Outlines", Object::Reference(n));
         }
     }
 

@@ -3,11 +3,10 @@
 use eframe::egui::{self, Ui};
 use log::error;
 use lopdf::{self, Document};
+use qpdf::QPdf;
 use std::default::Default;
 use std::path::PathBuf;
-use qpdf::QPdf;
 mod merge_pdf;
-
 
 fn main() -> std::result::Result<(), eframe::Error> {
     env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
@@ -25,22 +24,13 @@ fn main() -> std::result::Result<(), eframe::Error> {
     )
 }
 
-
-#[derive(PartialEq)]
+#[derive(PartialEq, Default)]
 enum PdfValid {
     Valid,
     Invalid,
-    Default
+    #[default]
+    Default,
 }
-
-
-impl Default for PdfValid {
-    fn default() -> Self {
-        // Возвращаемое значение при использовании PdfValid::default()
-        PdfValid::Default
-    }
-}
-
 
 #[derive(Default)]
 struct MyApp {
@@ -60,8 +50,7 @@ fn view_file(my_app: &mut MyApp, ui: &mut Ui) {
                 let path = i.display().to_string();
                 ui.monospace(path);
             });
-           }
-
+        }
     } else if my_app.pdf_valid == PdfValid::Invalid {
         ui.label("Invalid file header: not a PDF!");
     }
@@ -85,8 +74,7 @@ fn save_file(documents: Vec<Document>) {
     }
 }
 
-
-fn open_file (my_app: &mut MyApp) {
+fn open_file(my_app: &mut MyApp) {
     if let Some(path) = rfd::FileDialog::new().pick_files() {
         my_app.picked_path = path.clone();
         let mut documents: Vec<Document> = vec![];
@@ -161,15 +149,14 @@ fn recovery(mem: Vec<u8>, documents: &mut Vec<Document>, counter: &i32) -> i32 {
         Ok(recovery_pdf) => {
             documents.push(recovery_pdf);
             println!("PDF is recovery!");
-            return counter + 0
+            *counter
         }
         Err(err) => {
             error!("{}", err);
-            return counter + 1
+            counter + 1
         }
     }
 }
-
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
