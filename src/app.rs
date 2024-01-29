@@ -1,5 +1,6 @@
 pub mod pdf_merger {
-    use eframe::egui::{self, Ui};
+    use eframe::egui::{self, RichText, Ui};
+    use eframe::epaint::Color32;
     use log::error;
     use lopdf::{self, Document};
     use qpdf::QPdf;
@@ -34,14 +35,13 @@ pub mod pdf_merger {
 
             for i in &my_app.picked_path {
                 ui.horizontal(|ui| {
-                    // let error = String::from("Some error");
-                    // let path = i.clone().into_os_string().into_string().unwrap_or(error);
                     let path = i.display().to_string();
                     ui.monospace(path);
                 });
             }
         } else if my_app.pdf_valid == PdfValid::Invalid {
-            ui.label("Invalid file header: not a PDF!");
+            let err = format!("Error: {}", my_app.error);
+            ui.label(RichText::new(err).color(Color32::RED));
         }
     }
 
