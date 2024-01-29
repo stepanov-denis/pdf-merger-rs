@@ -8,6 +8,7 @@ license = "Apache-2.0"
 repository = "https://github.com/stepanov-denis/pdf-merger-rs/"
 keywords = ["merge", "pdf"]
 readme = "README.md"
+documentation = "https://docs.rs/pdf-merger-rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
