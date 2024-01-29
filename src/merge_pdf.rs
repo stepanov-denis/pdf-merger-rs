@@ -10,15 +10,6 @@ use lopdf::{Document, Object, ObjectId, Stream, Bookmark};
 
 
 pub fn merge(documents: Vec<Document>, path: PathBuf) -> std::io::Result<()> {
-
-    // Generate a stack of Documents to merge
-    // let documents = vec![
-    //     generate_fake_document(),
-    //     generate_fake_document(),
-    //     generate_fake_document(),
-    //     generate_fake_document(),
-    // ];
-
     // Define a starting max_id (will be used as start index for object_ids)
     let mut max_id = 1;
     let mut pagenum = 1;
