@@ -45,12 +45,16 @@ pub mod pdf_merger {
         }
     }
 
+
+    /// Drop the selected files
     fn drop_file(my_app: &mut MyApp) {
         let empty_doc_vec: Vec<Document> = vec![];
         my_app.documents = empty_doc_vec;
         my_app.pdf_valid = PdfValid::Default;
     }
 
+
+    /// Opens a file dialog to save the document and combines PDF documents into one
     fn save_file(my_app: &mut MyApp, documents: Vec<Document>) {
         if let Some(path) = rfd::FileDialog::new().save_file() {
             let merged_pdf = crate::merge::pdf::merge_and_save(documents, path);
@@ -64,6 +68,8 @@ pub mod pdf_merger {
         }
     }
 
+
+    /// Opens a file dialog to save the document
     fn open_file(my_app: &mut MyApp) {
         if let Some(path) = rfd::FileDialog::new().pick_files() {
             my_app.picked_path = path.clone();
@@ -83,11 +89,13 @@ pub mod pdf_merger {
         }
     }
 
+
+    /// Loads the selected document
     fn load_document(my_app: &mut MyApp, path: &PathBuf, documents: &mut Vec<Document>, counter: &mut i32) {
         let document = lopdf::Document::load(path);
         match document {
             Ok(doc) => {
-                println!("PDF is OK");
+                println!("PDF is OK, push this!");
                 documents.push(doc);
             }
             Err(lopdf::Error::Header) => {
@@ -108,6 +116,8 @@ pub mod pdf_merger {
         }
     }
 
+
+    /// Error handling of a corrupted pdf
     fn xref_error(my_app: &mut MyApp, path: &PathBuf, documents: &mut Vec<Document>, counter: &mut i32) {
         let recovery_pdf = qpdf::QPdf::read(path);
         match recovery_pdf {
@@ -122,6 +132,8 @@ pub mod pdf_merger {
         }
     }
 
+
+    /// Reads pdf to memory
     fn memory(my_app: &mut MyApp, doc: QPdf, documents: &mut Vec<Document>, counter: &mut i32) {
         doc.enable_recovery(true);
         let mem = doc.writer().write_to_memory();
@@ -138,6 +150,8 @@ pub mod pdf_merger {
         }
     }
 
+
+    /// Restores a damaged pdf
     fn recovery(my_app: &mut MyApp, mem: Vec<u8>, documents: &mut Vec<Document>, counter: &i32) -> i32 {
         let recovery_pdf = lopdf::Document::load_mem(&mem);
         match recovery_pdf {
