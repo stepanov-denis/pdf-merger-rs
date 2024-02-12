@@ -7,7 +7,6 @@ pub mod pdf_merger {
     use std::default::Default;
     use std::path::PathBuf;
 
-
     /// Сontains the validity value of the PDF's files
     #[derive(PartialEq, Default)]
     enum PdfValid {
@@ -17,7 +16,6 @@ pub mod pdf_merger {
         Default,
     }
 
-
     /// Contains the necessary parameters of the self application
     #[derive(Default)]
     pub struct MyApp {
@@ -26,7 +24,6 @@ pub mod pdf_merger {
         pdf_valid: PdfValid,
         error: String,
     }
-
 
     /// Displays a list of open files or an error in the GUI
     fn view_file(my_app: &mut MyApp, ui: &mut Ui) {
@@ -45,14 +42,12 @@ pub mod pdf_merger {
         }
     }
 
-
     /// Drop the selected files
     fn drop_file(my_app: &mut MyApp) {
         let empty_doc_vec: Vec<Document> = vec![];
         my_app.documents = empty_doc_vec;
         my_app.pdf_valid = PdfValid::Default;
     }
-
 
     /// Opens a file dialog to save the document and combines PDF documents into one
     fn save_file(my_app: &mut MyApp, documents: Vec<Document>) {
@@ -67,7 +62,6 @@ pub mod pdf_merger {
             }
         }
     }
-
 
     /// Opens a file dialog to save the document
     fn open_file(my_app: &mut MyApp) {
@@ -89,9 +83,13 @@ pub mod pdf_merger {
         }
     }
 
-
     /// Loads the selected document
-    fn load_document(my_app: &mut MyApp, path: &PathBuf, documents: &mut Vec<Document>, counter: &mut i32) {
+    fn load_document(
+        my_app: &mut MyApp,
+        path: &PathBuf,
+        documents: &mut Vec<Document>,
+        counter: &mut i32,
+    ) {
         let document = lopdf::Document::load(path);
         match document {
             Ok(doc) => {
@@ -116,9 +114,13 @@ pub mod pdf_merger {
         }
     }
 
-
     /// Error handling of a corrupted pdf
-    fn xref_error(my_app: &mut MyApp, path: &PathBuf, documents: &mut Vec<Document>, counter: &mut i32) {
+    fn xref_error(
+        my_app: &mut MyApp,
+        path: &PathBuf,
+        documents: &mut Vec<Document>,
+        counter: &mut i32,
+    ) {
         let recovery_pdf = qpdf::QPdf::read(path);
         match recovery_pdf {
             Ok(doc) => {
@@ -131,7 +133,6 @@ pub mod pdf_merger {
             }
         }
     }
-
 
     /// Reads pdf to memory
     fn memory(my_app: &mut MyApp, doc: QPdf, documents: &mut Vec<Document>, counter: &mut i32) {
@@ -150,9 +151,13 @@ pub mod pdf_merger {
         }
     }
 
-
     /// Restores a damaged pdf
-    fn recovery(my_app: &mut MyApp, mem: Vec<u8>, documents: &mut Vec<Document>, counter: &i32) -> i32 {
+    fn recovery(
+        my_app: &mut MyApp,
+        mem: Vec<u8>,
+        documents: &mut Vec<Document>,
+        counter: &i32,
+    ) -> i32 {
         let recovery_pdf = lopdf::Document::load_mem(&mem);
         match recovery_pdf {
             Ok(recovery_pdf) => {
@@ -172,21 +177,21 @@ pub mod pdf_merger {
         fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
             egui::CentralPanel::default().show(ctx, |ui| {
                 ui.heading("Click 'Open file' button for pick your PDF files");
-    
+
                 ui.horizontal(|ui| {
                     if ui.button("Open file...").clicked() {
                         open_file(self);
                     }
-    
+
                     if ui.button("Merge").clicked() {
                         save_file(self, self.documents.clone());
                     }
-    
+
                     if ui.button("Drop files").clicked() {
                         drop_file(self);
                     }
                 });
-    
+
                 view_file(self, ui);
             });
         }

@@ -3,7 +3,6 @@ pub mod pdf {
     use lopdf::{Bookmark, Document, Object, ObjectId};
     use std::collections::BTreeMap;
 
-
     /// Combines multiple PDFs into one
     pub fn merge_and_save(documents: Vec<Document>, path: PathBuf) -> std::io::Result<()> {
         // Define a starting max_id (will be used as start index for object_ids)
@@ -167,7 +166,8 @@ pub mod pdf {
 
         //Set all bookmarks to the PDF Object tree then set the Outlines to the Bookmark content map.
         if let Some(n) = document.build_outline() {
-            if let Ok(Object::Dictionary(ref mut dict)) = document.get_object_mut(catalog_object.0) {
+            if let Ok(Object::Dictionary(ref mut dict)) = document.get_object_mut(catalog_object.0)
+            {
                 dict.set("Outlines", Object::Reference(n));
             }
         }

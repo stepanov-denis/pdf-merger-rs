@@ -8,7 +8,7 @@ mod merge;
 fn main() -> std::result::Result<(), eframe::Error> {
     // Log to stderr (if you run with `RUST_LOG=debug`).
     env_logger::init();
-    
+
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             // wide enough for the drag-drop overlay text
